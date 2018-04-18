@@ -1,32 +1,18 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
 *.dll
+*.db
+*.filters
+*.user
 
-# Fortran module files
-*.mod
-*.smod
+/IPC_Viewer/IPC_Viewer.sln
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+/IPC_Viewer/.vs/
+/IPC_Viewer/Binaries/
+/IPC_Viewer/Intermediate/
+/IPC_Viewer/Saved/
 
-# Executables
-*.exe
-*.out
-*.app
+/IPC_Viewer/Plugins/IPCViewer/Intermediate/
+/IPC_Viewer/Plugins/IPCViewer/Binaries/
+
+/IPC_Core/.vs/
+/IPC_Core/IPC_Client/temp/
+/IPC_Core/IPC_Client/build/
