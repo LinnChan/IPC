@@ -106,13 +106,16 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\rpclib\include;$(SolutionDir)3rdparty\kinect\inc;$(SolutionDir)3rdparty\kinect\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\rpclib\include;$(SolutionDir)3rdparty\kinect\inc;$(SolutionDir)3rdparty\opencv\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\rpclib\lib;$(SolutionDir)3rdparty\kinect\Lib\$(Platform);$(SolutionDir)3rdparty\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>rpc.lib;Kinect20.lib;opencv_world341d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)3rdparty\opencv\bin\opencv_world341d.dll $(OutputPath)opencv_world341d.dll</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -134,7 +137,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\rpclib\include;$(SolutionDir)3rdparty\kinect\inc;$(SolutionDir)3rdparty\kinect\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\rpclib\include;$(SolutionDir)3rdparty\kinect\inc;$(SolutionDir)3rdparty\opencv\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -143,6 +146,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)3rdparty\rpclib\lib;$(SolutionDir)3rdparty\kinect\Lib\$(Platform);$(SolutionDir)3rdparty\opencv\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>rpc.lib;Kinect20.lib;opencv_world341.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)3rdparty\opencv\bin\opencv_world341.dll $(OutputPath)opencv_world341.dll</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp" />

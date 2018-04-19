@@ -51,7 +51,7 @@ namespace ipc
 	public:
 		virtual ESensorResult Open() = 0;
 		virtual ESensorResult Close() = 0;
-		virtual ESensorResult GetPointCloudData(FPointCloud** ppData) = 0;
+		virtual ESensorResult GetPointCloudData(FPointCloud* ppData) = 0;
 	};
 }
 
