@@ -85,6 +85,17 @@ ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloud* ppData)
 	hr = m_ColorFrameReader->AcquireLatestFrame(&pColorFrame);
 	if (!SUCCEEDED(hr))
 	{
+		SafeRelease(pDepthFrame);
+		SafeRelease(pColorFrame);
+		return ESensorResult::FAIL;
+	}
+
+	IBodyIndexFrame* pBodyIndexFrame = nullptr;
+	hr = m_BodyIndexFrameReader->AcquireLatestFrame(&pBodyIndexFrame);
+	if (!SUCCEEDED(hr))
+	{
+		SafeRelease(pBodyIndexFrame);
+		SafeRelease(pDepthFrame);
 		SafeRelease(pColorFrame);
 		return ESensorResult::FAIL;
 	}
@@ -97,12 +108,22 @@ ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloud* ppData)
 	pColorFrame->AccessRawUnderlyingBuffer(&colorFrameLength, &pColorData);
 	uint32_t bodyIndexDataLength = 0;
 	uint8_t* pBodyIndexData = nullptr;
-
+	pBodyIndexFrame->AccessUnderlyingBuffer(&bodyIndexDataLength, &pBodyIndexData);
 
 	Concurrency::parallel_for(0,16,1,[&](const uint32_t& index)
 	{
-		uint32_t x = index / mDepthFrameWidth;
-		uint32_t y = index % mDepthFrameWidth;
+		if (pBodyIndexData[index] > 0)
+		{
+			uint32_t x = index / mDepthFrameWidth;
+			uint32_t y = index % mDepthFrameWidth;
+
+			uint16_t depth = pDepthData[index];
+			DepthSpacePoint depthPoint = { x,y };
+			ColorSpacePoint colorPoint;
+			CameraSpacePoint cameraPoint;
+			m_CoordMapper->MapDepthPointToColorSpace(depthPoint, depth, &colorPoint);
+			m_CoordMapper->MapDepthPointToCameraSpace(depthPoint, depth, &cameraPoint);
+		}
 	});
 
 	SafeRelease(pDepthFrame);
