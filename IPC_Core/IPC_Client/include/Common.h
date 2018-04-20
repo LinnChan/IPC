@@ -41,9 +41,31 @@ namespace ipc
 
 	};
 
+	struct FPointCloudRaw
+	{
+		FPointXYZRGB* data = nullptr;
+		uint32_t length = 0;
+
+		FPointCloudRaw()
+		{
+			data = nullptr;
+			length = 0;
+		}
+
+		FPointCloudRaw(const uint32_t& length)
+		{
+			data = new FPointXYZRGB[length];
+		}
+
+		~FPointCloudRaw()
+		{
+			delete[] data;
+		}
+	};
+
 	struct FPointCloud
 	{
-		std::vector<std::vector<FVector3f>> data;
+		std::vector<std::vector<FPointXYZRGB>> data;
 	};
 
 	class ISensor

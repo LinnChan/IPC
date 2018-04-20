@@ -41,5 +41,7 @@ namespace ipc
 		int mDepthFrameWidth = 0;
 		int mDepthFrameHeight = 0;
 		unsigned int mDepthFrameBytesPerPixel = 0;
+
+		FPointCloudRaw mPointBuffer;
 	};
 }
