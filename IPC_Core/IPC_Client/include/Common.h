@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include "rpc/msgpack.hpp"
 
 namespace ipc
 {
@@ -16,6 +17,8 @@ namespace ipc
 		float x_val;
 		float y_val;
 		float z_val;
+
+		MSGPACK_DEFINE_MAP(x_val, y_val, z_val);
 	};
 
 	struct FVector2i
@@ -29,16 +32,16 @@ namespace ipc
 		uint8_t r;
 		uint8_t g;
 		uint8_t b;
+
+		MSGPACK_DEFINE_MAP(r, g, b);
 	};
 
 	struct FPointXYZRGB
 	{
-		FVector3f pos;
+		FVector3f position;
 		FColorRGB color;
 
-		uint32_t line_idx;
-		uint32_t seg_idx;
-
+		MSGPACK_DEFINE_MAP(position, color);
 	};
 
 	struct FPointCloudRaw

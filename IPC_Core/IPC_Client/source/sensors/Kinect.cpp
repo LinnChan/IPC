@@ -161,9 +161,9 @@ ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloudRaw** ppData)
 
 					m_pPointBuffer->valid[index] = true;
 
-					m_pPointBuffer->data[index].pos.x_val = cameraPoint.Z;
-					m_pPointBuffer->data[index].pos.y_val = cameraPoint.X;
-					m_pPointBuffer->data[index].pos.z_val = cameraPoint.Y;
+					m_pPointBuffer->data[index].position.x_val = cameraPoint.Z;
+					m_pPointBuffer->data[index].position.y_val = cameraPoint.X;
+					m_pPointBuffer->data[index].position.z_val = cameraPoint.Y;
 
 					m_pPointBuffer->data[index].color.b = pColorBuffer[4 * colorIndex + 0];
 					m_pPointBuffer->data[index].color.g = pColorBuffer[4 * colorIndex + 1];

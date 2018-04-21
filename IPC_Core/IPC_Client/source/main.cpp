@@ -17,6 +17,7 @@ int main()
 	{
 		ipc::FPointCloudRaw* pPointCloudRaw = nullptr;
 		sensor.GetPointCloudData(&pPointCloudRaw);
+		
 
 
 		key = _getch();

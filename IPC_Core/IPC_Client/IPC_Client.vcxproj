@@ -152,10 +152,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="source\PointCloudSender.cpp" />
     <ClCompile Include="source\sensors\Kinect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Common.h" />
+    <ClInclude Include="include\PointCloudSender.h" />
     <ClInclude Include="include\sensors\Kinect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
