@@ -39,7 +39,7 @@ ipc::ESensorResult ipc::CKinect::Open()
 	colorFrameDesc->get_Width(&mColorFrameWidth);
 	colorFrameDesc->get_BytesPerPixel(&mColorFrameBytesPerPixel);
 	SafeRelease(colorFrameDesc);
-	
+
 	IFrameDescription* depthFrameDesc = nullptr;
 	m_DepthFrameSrc->get_FrameDescription(&depthFrameDesc);
 	depthFrameDesc->get_Height(&mDepthFrameHeight);
@@ -57,7 +57,9 @@ ipc::ESensorResult ipc::CKinect::Open()
 	if (!SUCCEEDED(hr)) return ESensorResult::FAIL;
 
 	// preallocate point cloud buffer
-	mPointBuffer = FPointCloudRaw(mDepthFrameHeight*mDepthFrameWidth);
+	m_pPointBuffer = new FPointCloudRaw(mDepthFrameHeight*mDepthFrameWidth);
+
+	pColorBuffer = new uint8_t[mColorFrameWidth*mColorFrameHeight * 4];
 
 	std::cout << "Device launch successfully! " << std::endl;
 
@@ -66,15 +68,25 @@ ipc::ESensorResult ipc::CKinect::Open()
 
 ipc::ESensorResult ipc::CKinect::Close()
 {
-
 	HRESULT hr = m_KinectSensor->Close();
 	if (!SUCCEEDED(hr)) return ESensorResult::FAIL;
+
+	delete m_pPointBuffer;
+
+	SafeRelease(m_ColorFrameSrc);
+	SafeRelease(m_DepthFrameSrc);
+	SafeRelease(m_BodyIndexFrameSrc);
+	SafeRelease(m_ColorFrameReader);
+	SafeRelease(m_DepthFrameReader);
+	SafeRelease(m_CoordMapper);
+	SafeRelease(m_BodyIndexFrameReader);
+	SafeRelease(m_KinectSensor);
 
 	return ESensorResult::SUCCESS;
 }
 
 
-ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloud* ppData)
+ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloudRaw** ppData)
 {
 	IDepthFrame* pDepthFrame = nullptr;
 	HRESULT hr = m_DepthFrameReader->AcquireLatestFrame(&pDepthFrame);
@@ -109,8 +121,7 @@ ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloud* ppData)
 	if (!SUCCEEDED(hr)) return ESensorResult::FAIL;
 
 	uint32_t colorFrameLength = 0;
-	uint8_t* pColorData = nullptr;
-	hr =  pColorFrame->AccessRawUnderlyingBuffer(&colorFrameLength, &pColorData);
+	hr = pColorFrame->CopyConvertedFrameDataToArray(mColorFrameHeight*mColorFrameWidth * 4, pColorBuffer, ColorImageFormat::ColorImageFormat_Bgra);
 	if (!SUCCEEDED(hr)) return ESensorResult::FAIL;
 
 	uint32_t bodyIndexDataLength = 0;
@@ -121,70 +132,56 @@ ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloud* ppData)
 	cv::Mat depthShaded = cv::Mat(mDepthFrameHeight, mDepthFrameWidth, CV_8UC3);
 	uint8_t* pDepthShadedData = depthShaded.data;
 
-	//Concurrency::parallel_for(0, (int)depthDataLength, 1, [&](const uint32_t& index)
-	for (uint32_t index = 0; index < depthDataLength; ++index)
+	Concurrency::parallel_for(0, (int)depthDataLength, 1, [&](const uint32_t& index)
 	{
-		if (pBodyIndexData[index] != 255)
+		if (pBodyIndexData[index] != 0xFF)
 		{
-			uint32_t x = index / mDepthFrameWidth;
-			uint32_t y = index % mDepthFrameWidth;
+			uint32_t depthX = index % mDepthFrameWidth;
+			uint32_t depthY = index / mDepthFrameWidth;
 
 			uint16_t depth = pDepthData[index];
-			DepthSpacePoint depthPoint = { static_cast<float>(x),static_cast<float>(y) };
+			DepthSpacePoint depthPoint = { static_cast<float>(depthX), static_cast<float>(depthY) };
 			ColorSpacePoint colorPoint;
 			CameraSpacePoint cameraPoint;
 			m_CoordMapper->MapDepthPointToColorSpace(depthPoint, depth, &colorPoint);
 			m_CoordMapper->MapDepthPointToCameraSpace(depthPoint, depth, &cameraPoint);
 
-			if (isnan(cameraPoint.X) || isnan(cameraPoint.Y) || isnan(cameraPoint.Z) ||
-				isnan(colorPoint.X) || isnan(colorPoint.Y))
+			if (colorPoint.X != -std::numeric_limits<float>::infinity() &&
+				colorPoint.Y != -std::numeric_limits<float>::infinity() &&
+				cameraPoint.X != -std::numeric_limits<float>::infinity() &&
+				cameraPoint.Y != -std::numeric_limits<float>::infinity() &&
+				cameraPoint.Z != -std::numeric_limits<float>::infinity())
 			{
-				mPointBuffer.data[index].pos.x_val = NAN;
-				mPointBuffer.data[index].pos.y_val = NAN;
-				mPointBuffer.data[index].pos.z_val = NAN;
-				//return;
-				continue;
+				int colorX = static_cast<int>(colorPoint.X + 0.5f);
+				int colorY = static_cast<int>(colorPoint.Y + 0.5f);
+				if (colorX >= 0 && colorX < mColorFrameWidth && 
+					colorY >= 0 && colorY < mColorFrameHeight)
+				{
+					int colorIndex = colorY*mColorFrameWidth + colorX;
+
+					m_pPointBuffer->valid[index] = true;
+
+					m_pPointBuffer->data[index].pos.x_val = cameraPoint.Z;
+					m_pPointBuffer->data[index].pos.y_val = cameraPoint.X;
+					m_pPointBuffer->data[index].pos.z_val = cameraPoint.Y;
+
+					m_pPointBuffer->data[index].color.b = pColorBuffer[4 * colorIndex + 0];
+					m_pPointBuffer->data[index].color.g = pColorBuffer[4 * colorIndex + 1];
+					m_pPointBuffer->data[index].color.r = pColorBuffer[4 * colorIndex + 2];
+				}
 			}
-
-			int colorX = static_cast<int>(colorPoint.X + 0.5f);
-			int colorY = static_cast<int>(colorPoint.Y + 0.5f);
-			if (colorX<0 || colorX>mColorFrameWidth || colorY<0 || colorY>mColorFrameHeight) 
-				//return;
-				continue;
-			
-			int colorIndex = colorY*mColorFrameWidth + colorX;
-
-			//mPointBuffer.data[index].pos.x_val = cameraPoint.Z;
-			//mPointBuffer.data[index].pos.y_val = cameraPoint.X;
-			//mPointBuffer.data[index].pos.z_val = cameraPoint.Y;
-
-			//mPointBuffer.data[index].color.b = pColorData[3 * colorIndex + 0];
-			//mPointBuffer.data[index].color.g = pColorData[3 * colorIndex + 1];
-			//mPointBuffer.data[index].color.r = pColorData[3 * colorIndex + 2];
-
-			pDepthShadedData[3 * index + 0] = pColorData[3 * colorIndex + 0];
-			pDepthShadedData[3 * index + 1] = pColorData[3 * colorIndex + 1];
-			pDepthShadedData[3 * index + 2] = pColorData[3 * colorIndex + 2];
-
-			//pDepthShadedData[3 * index + 0] = 0;
-			//pDepthShadedData[3 * index + 1] = 0;
-			//pDepthShadedData[3 * index + 2] = 0;
 		}
-	}
-	//);
+		else
+		{
+			m_pPointBuffer->valid[index] = false;
+		}
+	});
 
-	cv::imshow("color", depthShaded);
-	cv::waitKey(10);
+	*ppData = m_pPointBuffer;
 
 	SafeRelease(pDepthFrame);
 	SafeRelease(pColorFrame);
 	SafeRelease(pBodyIndexFrame);
 
-
 	return ESensorResult::SUCCESS;
-}
-
-void ipc::CKinect::Run()
-{
-
 }

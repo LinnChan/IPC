@@ -44,22 +44,29 @@ namespace ipc
 	struct FPointCloudRaw
 	{
 		FPointXYZRGB* data = nullptr;
+		bool* valid = nullptr;
 		uint32_t length = 0;
 
 		FPointCloudRaw()
 		{
 			data = nullptr;
+			valid = nullptr;
 			length = 0;
 		}
 
-		FPointCloudRaw(const uint32_t& length)
+		FPointCloudRaw(const uint32_t& length_val)
 		{
-			data = new FPointXYZRGB[length];
+			data = new FPointXYZRGB[length_val];
+			valid = new bool[length_val];
+			length = length_val;
 		}
 
 		~FPointCloudRaw()
 		{
-			delete[] data;
+			if(data!=nullptr)
+				delete[] data;
+			if (valid != nullptr)
+				delete[] valid;
 		}
 	};
 
@@ -73,7 +80,7 @@ namespace ipc
 	public:
 		virtual ESensorResult Open() = 0;
 		virtual ESensorResult Close() = 0;
-		virtual ESensorResult GetPointCloudData(FPointCloud* ppData) = 0;
+		virtual ESensorResult GetPointCloudData(FPointCloudRaw** ppData) = 0;
 	};
 }
 

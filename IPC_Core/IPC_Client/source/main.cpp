@@ -1,6 +1,9 @@
+#include "Common.h"
 #include "sensors/Kinect.h"
 
+#include <conio.h>
 #include <iostream>
+#include <windows.h> 
 
 int main()
 {
@@ -9,10 +12,14 @@ int main()
 	ipc::ESensorResult res = sensor.Open();
 	if (res != ipc::ESensorResult::SUCCESS) return 0;
 
-	while (true)
+	int key = 0;
+	while (key != 'q')
 	{
-		sensor.GetPointCloudData(nullptr);
-		Sleep(30);
+		ipc::FPointCloudRaw* pPointCloudRaw = nullptr;
+		sensor.GetPointCloudData(&pPointCloudRaw);
+
+
+		key = _getch();
 	}
 
 	sensor.Close();
