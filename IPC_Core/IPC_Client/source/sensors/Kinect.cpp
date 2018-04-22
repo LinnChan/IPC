@@ -4,10 +4,7 @@
 
 ipc::CKinect::~CKinect()
 {
-	SafeRelease(m_KinectSensor);
-	SafeRelease(m_ColorFrameSrc);
-	SafeRelease(m_DepthFrameSrc);
-	SafeRelease(m_CoordMapper);
+	Close();
 }
 
 ipc::ESensorResult ipc::CKinect::Open()
@@ -57,9 +54,11 @@ ipc::ESensorResult ipc::CKinect::Open()
 	if (!SUCCEEDED(hr)) return ESensorResult::FAIL;
 
 	// preallocate point cloud buffer
-	m_pPointBuffer = new FPointCloudRaw(mDepthFrameHeight*mDepthFrameWidth);
+	m_pPointBuffer = new FPointCloud_Raw(mDepthFrameHeight*mDepthFrameWidth);
 
 	pColorBuffer = new uint8_t[mColorFrameWidth*mColorFrameHeight * 4];
+
+	m_IsOpen = true;
 
 	std::cout << "Device launch successfully! " << std::endl;
 
@@ -70,6 +69,8 @@ ipc::ESensorResult ipc::CKinect::Close()
 {
 	HRESULT hr = m_KinectSensor->Close();
 	if (!SUCCEEDED(hr)) return ESensorResult::FAIL;
+
+	m_IsOpen = false;
 
 	delete m_pPointBuffer;
 
@@ -86,8 +87,11 @@ ipc::ESensorResult ipc::CKinect::Close()
 }
 
 
-ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloudRaw** ppData)
+ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloud_Raw** ppData)
 {
+	if (m_IsOpen)
+		return ESensorResult::FAIL;
+
 	IDepthFrame* pDepthFrame = nullptr;
 	HRESULT hr = m_DepthFrameReader->AcquireLatestFrame(&pDepthFrame);
 	if (!SUCCEEDED(hr))

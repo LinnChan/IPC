@@ -151,13 +151,17 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\IPC_Client.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="source\PointCloudSender.cpp" />
+    <ClCompile Include="source\processor\PointCloudProcessor.cpp" />
     <ClCompile Include="source\sensors\Kinect.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Common.h" />
+    <ClInclude Include="include\IPC_Client.h" />
+    <ClInclude Include="include\Common.hpp" />
     <ClInclude Include="include\PointCloudSender.h" />
+    <ClInclude Include="include\processor\PointCloudProcessor.h" />
     <ClInclude Include="include\sensors\Kinect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

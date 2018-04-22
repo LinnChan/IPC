@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common.h"
+#include "Common.hpp"
 
 #include "opencv2/opencv.hpp"
 
@@ -16,7 +16,8 @@ namespace ipc
 	public:
 		virtual ESensorResult Open();
 		virtual ESensorResult Close();
-		virtual ESensorResult GetPointCloudData(FPointCloudRaw** ppData);
+		virtual ESensorResult GetPointCloudData(FPointCloud_Raw** ppData);
+		virtual bool IsOpen() { return m_IsOpen; }
 
 		CKinect() {};
 		virtual ~CKinect();
@@ -43,6 +44,8 @@ namespace ipc
 		int mDepthFrameHeight = 0;
 		unsigned int mDepthFrameBytesPerPixel = 0;
 
-		FPointCloudRaw* m_pPointBuffer;
+		FPointCloud_Raw* m_pPointBuffer;
+
+		bool m_IsOpen = false;
 	};
 }
