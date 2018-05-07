@@ -4,7 +4,6 @@
 #include "Core.h"
 #include "ModuleManager.h"
 #include "IPluginManager.h"
-#include "ExampleLibrary.h"
 
 #define LOCTEXT_NAMESPACE "FIPCViewerModule"
 
@@ -30,7 +29,7 @@ void FIPCViewerModule::StartupModule()
 	}
 	else
 	{
-		FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed to load example third party library"));
+		//FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed to load example third party library"));
 	}
 }
 

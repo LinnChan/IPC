@@ -14,10 +14,9 @@ namespace ipc
 
 		virtual ~CPointCloudSender();
 
-		void SendPointCloudData(const FPointCloud_Send& pts);
+		bool Connect();
 
-	//private:
-	//	rpc::client* m_pClient;
+		void SendPointCloudData(const FPointCloud_Send& pts);
 
 	};
 }

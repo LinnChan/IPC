@@ -17,3 +17,7 @@
 /IPC_Core/.vs/
 /IPC_Core/IPC_Client/temp/
 /IPC_Core/IPC_Client/build/
+/IPC_Core/IPC_Plugin/temp/x64/Debug
+
+/IPC_Core/IPC_Plugin/temp/
+/IPC_Core/IPC_Plugin/build/

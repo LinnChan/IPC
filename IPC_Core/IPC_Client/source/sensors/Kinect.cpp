@@ -2,6 +2,17 @@
 
 #include <iostream>
 
+// Safe release for interfaces
+template<class Interface>
+inline void SafeRelease(Interface *& pInterfaceToRelease)
+{
+	if (pInterfaceToRelease != NULL)
+	{
+		pInterfaceToRelease->Release();
+		pInterfaceToRelease = NULL;
+	}
+}
+
 ipc::CKinect::~CKinect()
 {
 	Close();
@@ -67,8 +78,11 @@ ipc::ESensorResult ipc::CKinect::Open()
 
 ipc::ESensorResult ipc::CKinect::Close()
 {
-	HRESULT hr = m_KinectSensor->Close();
-	if (!SUCCEEDED(hr)) return ESensorResult::FAIL;
+	if (m_KinectSensor != nullptr)
+	{
+		HRESULT hr = m_KinectSensor->Close();
+		if (!SUCCEEDED(hr)) return ESensorResult::FAIL;
+	}
 
 	m_IsOpen = false;
 

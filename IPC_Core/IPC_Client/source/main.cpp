@@ -1,15 +1,13 @@
 #include "Common.hpp"
 #include "sensors/Kinect.h"
+#include "IpcClient.h"
 
 int main()
 {
 	ipc::CKinect sensor;
+	ipc::CIpcClient client(&sensor, "127.0.0.1", 16384, 100);
 
-	ipc::ESensorResult res = sensor.Open();
-	if (res != ipc::ESensorResult::SUCCESS) return 0;
+	client.Run();
 
-
-
-	sensor.Close();
 	return 0;
 }
