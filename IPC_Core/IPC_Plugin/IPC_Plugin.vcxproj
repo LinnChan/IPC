@@ -73,14 +73,14 @@
     <OutDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)temp\$(Platform)\$(Configuration)\</IntDir>
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(ProjectDir);$(IncludePath)</IncludePath>
     <SourcePath>$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)temp\$(Platform)\$(Configuration)\</IntDir>
     <TargetExt>.dll</TargetExt>
-    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(ProjectDir);$(IncludePath)</IncludePath>
     <SourcePath>$(ProjectDir)source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -93,6 +93,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(solutiondir)3rdparty\rpclib\lib\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -129,15 +130,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(solutiondir)3rdparty\rpclib\lib\$(platform)\$(configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>rpc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\IpcServer.cpp" />
-    <ClCompile Include="source\source.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Common.h" />
-    <ClInclude Include="include\rpcAdaptor.h" />
+    <ClInclude Include="IpcLib.h" />
+    <ClInclude Include="include\rpcAdaptor.hpp" />
     <ClInclude Include="include\IpcServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

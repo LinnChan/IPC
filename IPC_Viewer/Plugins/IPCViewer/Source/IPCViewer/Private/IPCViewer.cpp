@@ -17,27 +17,19 @@ void FIPCViewerModule::StartupModule()
 	// Add on the relative location of the third party dll and load it
 	FString LibraryPath;
 #if PLATFORM_WINDOWS
-	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Binaries/ThirdParty/IPCViewerLibrary/Win64/ExampleLibrary.dll"));
+	LibraryPath = FPaths::Combine(*BaseDir, TEXT("Binaries/ThirdParty/IPCViewerLibrary/Win64/IPC_Plugin.dll"));
 #endif // PLATFORM_WINDOWS
 
 	ExampleLibraryHandle = !LibraryPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*LibraryPath) : nullptr;
 
-	if (ExampleLibraryHandle)
+	if (!ExampleLibraryHandle)
 	{
-		// Call the test function in the third party library that opens a message box
-		// ExampleLibraryFunction();
-	}
-	else
-	{
-		//FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed to load example third party library"));
+		FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("ThirdPartyLibraryError", "Failed to load example third party library"));
 	}
 }
 
 void FIPCViewerModule::ShutdownModule()
 {
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
-
 	// Free the dll handle
 	FPlatformProcess::FreeDllHandle(ExampleLibraryHandle);
 	ExampleLibraryHandle = nullptr;

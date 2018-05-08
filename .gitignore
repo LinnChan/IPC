@@ -6,6 +6,8 @@
 
 /.vscode/
 
+/.vs/
+
 /IPC_Viewer/.vs/
 /IPC_Viewer/Binaries/
 /IPC_Viewer/Intermediate/
