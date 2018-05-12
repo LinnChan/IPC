@@ -3,7 +3,7 @@
 
 std::unique_ptr<ipc::CIpcServer> ipc::CIpcServer::Instance;
 
-ipc::CIpcServer::CIpcServer(IViewer* viewer, std::string ip, uint16_t& port) :server(ip, port)
+ipc::CIpcServer::CIpcServer(IViewer* viewer, std::string& ip, uint16_t& port) :server(ip, port)
 {
 	m_Viewer = viewer;
 
@@ -37,7 +37,7 @@ void ipc::CIpcServer::Run()
 	async_run(4);
 }
 
-void ipc::CIpcServer::StartServer(IViewer* viewer, std::string ip, uint16_t& port)
+void ipc::CIpcServer::StartServer(IViewer* viewer, std::string& ip, uint16_t& port)
 {
 	Instance.reset(new CIpcServer(viewer, ip, port));
 }
@@ -57,7 +57,7 @@ void ipc::CIpcServer::ReleaseBuffer(const uint32_t& bufferId)
 	delete pData;
 }
 
-void ipc::StartServer(IViewer* viewer, std::string ip, uint16_t& port)
+void ipc::StartServer(IViewer* viewer, std::string ip, uint16_t port)
 {
 	CIpcServer::StartServer(viewer, ip, port);
 }
@@ -67,7 +67,7 @@ void ipc::StopServer()
 	CIpcServer::StopServer();
 }
 
-void ipc::ReleaseBuffer(const uint32_t& id)
+void ipc::ReleaseBuffer(const uint32_t id)
 {
 	CIpcServer::ReleaseBuffer(id);
 }

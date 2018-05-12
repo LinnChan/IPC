@@ -3,35 +3,70 @@
 #include "IpcViewerActor.h"
 
 
-ViewerWarpper::ViewerWarpper(ViewerWarpper* viewer)
+ViewerWarpper::ViewerWarpper(AIpcViewerActor* viewer)
 {
-	m_Viewer = viewer;
+	_Viewer = viewer;
 }
 
 void ViewerWarpper::ShowPointCloud(ipc::FPointCloud* pt)
 {
-
+	_Viewer->AddFrame(pt);
 }
 
-// Sets default values
 AIpcViewerActor::AIpcViewerActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	ParticleSystemComponent = GetComponentByClass<UParticleSystemComponent>();
 }
 
-// Called when the game starts or when spawned
 void AIpcViewerActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	MatInsDynamic = ParticleSystemComponent->CreateDynamicMaterialInstance(0, MaterialReference);
+	MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, Texture_Position0);
+	MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, Texture_Color);
+
+	if (HasAuthority())
+	{
+		_ViewerWapper = new ViewerWarpper(this);
+		ipc::StartServer(_ViewerWapper, "127.0.0.1", 19385);
+	}
 }
 
-// Called every frame
+void AIpcViewerActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (EndPlayReason == EEndPlayReason::Destroyed)	
+	{
+		if (HasAuthority())
+		{
+			ipc::StopServer();
+			delete _ViewerWapper;
+		}
+	}
+	Super::EndPlay(EndPlayReason);
+}
+
 void AIpcViewerActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UMaterialInterface* material = ParticleSystemComponent->GetMaterial(0);
+	ParticleSystemComponent->SetMaterialParameter()
 }
 
+void AIpcViewerActor::AddFrame(ipc::FPointCloud* frame)
+{
+	FrameQueueMutex.Lock();
+	FrameQueue.Add(frame);
+	FrameQueueMutex.Unlock();
+}
+
+void AIpcViewerActor::SetMaterialTexture(ipc::FPointCloud* frame)
+{
+	//Texture_Position0->UpdateTextureRegions()
+
+	//MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, TexturePosition0);
+	//MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, TexturePosition0);
+}

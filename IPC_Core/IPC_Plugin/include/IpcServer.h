@@ -10,7 +10,7 @@ namespace ipc
 	class CIpcServer :private rpc::server
 	{
 	public:
-		static void StartServer(IViewer* viewer, std::string ip, uint16_t& port);
+		static void StartServer(IViewer* viewer, std::string& ip, uint16_t& port);
 		static void StopServer();
 		static void ReleaseBuffer(const uint32_t& bufferId);
 
@@ -22,7 +22,7 @@ namespace ipc
 
 	private:
 		CIpcServer() = default;
-		CIpcServer(IViewer* viewer, std::string ip, uint16_t& port);
+		CIpcServer(IViewer* viewer, std::string& ip, uint16_t& port);
 
 		void Run();
 

@@ -12,7 +12,7 @@ public class IPCViewerLibrary : ModuleRules
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
             // Add the import library
-            PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "build" ,"x64", "Release"));
+            PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "x64", "Release"));
             PublicAdditionalLibraries.Add("IPC_Plugin.lib");
 
             // Delay-load the DLL, so we can load it from the right place first

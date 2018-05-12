@@ -34,7 +34,7 @@ namespace ipc
 		virtual void ShowPointCloud(FPointCloud* pt) = 0;
 	};
 
-	void IPCLIB_API StartServer(IViewer* viewer, std::string ip, uint16_t& port);
+	void IPCLIB_API StartServer(IViewer* viewer, std::string ip, uint16_t port);
 	void IPCLIB_API StopServer();
-	void IPCLIB_API ReleaseBuffer(const uint32_t& id);
+	void IPCLIB_API ReleaseBuffer(const uint32_t id);
 }

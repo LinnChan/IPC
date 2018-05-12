@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "IpcLib.h"
 #include "memory"
+#include "Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
 #include "GameFramework/Actor.h"
 #include "IpcViewerActor.generated.h"
 
@@ -14,34 +15,46 @@ class ViewerWarpper :public ipc::IViewer
 {
 public:
 	virtual void ShowPointCloud(ipc::FPointCloud* pt);
-
-	ViewerWarpper(ViewerWarpper* viewer);
+	ViewerWarpper(AIpcViewerActor* viewer);
 
 private:
-	AIpcViewerActor* m_Viewer = nullptr;
+	AIpcViewerActor * _Viewer = nullptr;
 };
 
 UCLASS()
 class IPCVIEWER_API AIpcViewerActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-
-
 public:	
-	// Sets default values for this actor's properties
+	void AddFrame(ipc::FPointCloud* frame);
+
 	AIpcViewerActor();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+protected:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+private:
+	void SetMaterialTexture(ipc::FPointCloud* frame);
 	
-	
+public:
+	UPROPERTY(EditAnywhere)
+		UMaterial* MaterialReference;
+	UPROPERTY(EditAnywhere)
+		FName MaterialParameterName_Position0;
+	UPROPERTY(EditAnywhere)
+		FName MaterialParameterName_Color;
+	UPROPERTY(EditAnywhere)
+		UTexture2D*  Texture_Position0 = nullptr;
+	UPROPERTY(EditAnywhere)
+		UTexture2D*  Texture_Color = nullptr;
+
+private:
+	UParticleSystemComponent * ParticleSystemComponent = nullptr;
+	UMaterialInstanceDynamic* MatInsDynamic = nullptr;
+
+	TArray<ipc::FPointCloud*> FrameQueue;
+	FCriticalSection FrameQueueMutex;
+	ViewerWarpper * _ViewerWapper = nullptr;
 };

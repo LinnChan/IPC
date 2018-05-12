@@ -18,7 +18,7 @@ public class IPCViewer : ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"IPCViewer/Private",
+				"IPCViewer/Private"
 				// ... add other private include paths required here ...
 			}
 			);
@@ -38,6 +38,8 @@ public class IPCViewer : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
+                "CoreUObject",
+                "Engine"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
