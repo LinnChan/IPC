@@ -24,6 +24,11 @@ void AIpcViewerActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Texture_Position0 = UTexture2D::CreateTransient(1024, 1024);
+	Texture_Position0->UpdateResource();
+	Texture_Color = UTexture2D::CreateTransient(1024, 1024);
+	Texture_Color->UpdateResource();
+
 	MatInsDynamic = ParticleSystemComponent->CreateDynamicMaterialInstance(0, MaterialReference);
 	MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, Texture_Position0);
 	MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, Texture_Color);
@@ -65,8 +70,20 @@ void AIpcViewerActor::AddFrame(ipc::FPointCloud* frame)
 
 void AIpcViewerActor::SetMaterialTexture(ipc::FPointCloud* frame)
 {
-	//Texture_Position0->UpdateTextureRegions()
+	uint8_t* pos_data = new uint8_t[1024 * 1024 * 3];
+	uint8_t* col_data = new uint8_t[1024 * 1024 * 3];
+	for (uint32_t index = 0; index < 1024 * 1024; ++index)
+	{
+		pos_data[index] = static_cast<uint8_t>(frame->data->x*1000.0f);
+		pos_data[index] = static_cast<uint8_t>(frame->data->y*1000.0f);
+		pos_data[index] = static_cast<uint8_t>(frame->data->z*1000.0f);
+		col_data[index] = static_cast<uint8_t>(frame->data->r);
+		col_data[index] = static_cast<uint8_t>(frame->data->g);
+		col_data[index] = static_cast<uint8_t>(frame->data->b);
+	}
 
-	//MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, TexturePosition0);
-	//MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, TexturePosition0);
+	FUpdateTextureRegion2D region(0, 0, 0, 0, 1024, 1024);
+
+	Texture_Position0->UpdateTextureRegions(0, 1, &region, 30, 3, pos_data);
+
 }
