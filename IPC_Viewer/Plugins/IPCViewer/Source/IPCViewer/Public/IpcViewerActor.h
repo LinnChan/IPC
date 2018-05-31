@@ -6,6 +6,8 @@
 #include "IpcLib.h"
 #include "memory"
 #include "Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
+#include "Runtime/Engine/Classes/Engine/Texture2D.h"
+#include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
 #include "GameFramework/Actor.h"
 #include "IpcViewerActor.generated.h"
 
@@ -27,6 +29,7 @@ class IPCVIEWER_API AIpcViewerActor : public AActor
 	GENERATED_BODY()
 public:	
 	void AddFrame(ipc::FPointCloud* frame);
+	ipc::FPointCloud* GetLatestFrame();
 
 	AIpcViewerActor();
 	virtual void Tick(float DeltaTime) override;
@@ -49,12 +52,15 @@ public:
 		UTexture2D*  Texture_Position0 = nullptr;
 	UPROPERTY(EditAnywhere)
 		UTexture2D*  Texture_Color = nullptr;
+	UPROPERTY(EditAnywhere)
+		float PlayFrameRate = 20.0f;
 
 private:
-	UParticleSystemComponent * ParticleSystemComponent = nullptr;
+	UParticleSystemComponent* ParticleSystemComponent = nullptr;
 	UMaterialInstanceDynamic* MatInsDynamic = nullptr;
 
 	TArray<ipc::FPointCloud*> FrameQueue;
 	FCriticalSection FrameQueueMutex;
 	ViewerWarpper * _ViewerWapper = nullptr;
+	
 };

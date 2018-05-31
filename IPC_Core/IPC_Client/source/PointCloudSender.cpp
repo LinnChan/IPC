@@ -4,6 +4,7 @@
 
 ipc::CPointCloudSender::CPointCloudSender(const std::string& ip_address, const uint16_t& port):rpc::client(ip_address,port)
 {
+
 }
 
 ipc::CPointCloudSender::~CPointCloudSender()

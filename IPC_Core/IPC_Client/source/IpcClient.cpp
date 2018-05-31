@@ -24,7 +24,7 @@ ipc::CIpcClient::CIpcClient(ISensor* pSensor, const std::string& ip_addr, const 
 	}
 
 	m_IsConnected = true;
-	m_pSensor->Open();
+	//m_pSensor->Open();
 }
 
 ipc::CIpcClient::~CIpcClient()
@@ -41,7 +41,7 @@ void ipc::CIpcClient::Run()
 	int key = 0;
 	while (key != 'q')
 	{
-		key = _getch();
+		//key = _getch();
 
 		if (!m_pSensor->IsOpen())
 		{
@@ -49,13 +49,18 @@ void ipc::CIpcClient::Run()
 			Sleep(static_cast<DWORD>(m_DeltaTime_ms));
 			continue;
 		}
-		
+
 		ipc::FPointCloud_Raw* pPointCloudRaw = nullptr;
 		auto res = m_pSensor->GetPointCloudData(&pPointCloudRaw);
 		if (res == ESensorResult::SUCCESS)
 		{
 			FPointCloud_Send pointCloudSend(*pPointCloudRaw);
-			m_pSender->SendPointCloudData(pointCloudSend);
+
+			if (pointCloudSend.data.size() > 0)
+			{
+				m_pSender->SendPointCloudData(pointCloudSend);
+				std::cout << "Send data length: " << pointCloudSend.data.size() << std::endl;
+			}
 		}
 
 		Sleep(static_cast<DWORD>(m_DeltaTime_ms));

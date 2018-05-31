@@ -17,7 +17,7 @@ AIpcViewerActor::AIpcViewerActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	ParticleSystemComponent = GetComponentByClass<UParticleSystemComponent>();
+	//ParticleSystemComponent = static_cast<UParticleSystemComponent*>(this->GetComponentByClass(UParticleSystemComponent::StaticClass()));
 }
 
 void AIpcViewerActor::BeginPlay()
@@ -29,7 +29,8 @@ void AIpcViewerActor::BeginPlay()
 	Texture_Color = UTexture2D::CreateTransient(1024, 1024);
 	Texture_Color->UpdateResource();
 
-	MatInsDynamic = ParticleSystemComponent->CreateDynamicMaterialInstance(0, MaterialReference);
+	ParticleSystemComponent =FindComponentByClass<UParticleSystemComponent>();
+	MatInsDynamic = ParticleSystemComponent->CreateDynamicMaterialInstance(0, (UMaterialInterface*)(MaterialReference));
 	MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, Texture_Position0);
 	MatInsDynamic->SetTextureParameterValue(MaterialParameterName_Position0, Texture_Color);
 
@@ -56,9 +57,20 @@ void AIpcViewerActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AIpcViewerActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	static float frameRateAcc = 0.0f;
 
-	UMaterialInterface* material = ParticleSystemComponent->GetMaterial(0);
-	ParticleSystemComponent->SetMaterialParameter()
+	frameRateAcc += DeltaTime;
+	if (frameRateAcc > 1.0f / PlayFrameRate)
+	{
+		frameRateAcc = 0.0f;
+		ipc::FPointCloud* latestFrame = GetLatestFrame();
+		if (latestFrame != nullptr)
+		{
+			SetMaterialTexture(latestFrame);
+			ipc::ReleaseBuffer(latestFrame->buffer_id);
+		}
+	}
 }
 
 void AIpcViewerActor::AddFrame(ipc::FPointCloud* frame)
@@ -68,18 +80,33 @@ void AIpcViewerActor::AddFrame(ipc::FPointCloud* frame)
 	FrameQueueMutex.Unlock();
 }
 
+ipc::FPointCloud* AIpcViewerActor::GetLatestFrame()
+{
+	if (FrameQueue.Num() > 0)
+	{
+		FrameQueueMutex.Lock();
+		ipc::FPointCloud* result = FrameQueue[0];
+		FrameQueue.RemoveAt(0);
+		FrameQueueMutex.Unlock();
+
+		return result;
+	}
+
+	return nullptr;
+}
+
 void AIpcViewerActor::SetMaterialTexture(ipc::FPointCloud* frame)
 {
 	uint8_t* pos_data = new uint8_t[1024 * 1024 * 3];
 	uint8_t* col_data = new uint8_t[1024 * 1024 * 3];
-	for (uint32_t index = 0; index < 1024 * 1024; ++index)
+	for (uint32_t index = 0; index < 1024 * 1024 && index<frame->length; ++index)
 	{
-		pos_data[index] = static_cast<uint8_t>(frame->data->x*1000.0f);
-		pos_data[index] = static_cast<uint8_t>(frame->data->y*1000.0f);
-		pos_data[index] = static_cast<uint8_t>(frame->data->z*1000.0f);
-		col_data[index] = static_cast<uint8_t>(frame->data->r);
-		col_data[index] = static_cast<uint8_t>(frame->data->g);
-		col_data[index] = static_cast<uint8_t>(frame->data->b);
+		pos_data[index] = static_cast<uint8_t>(frame->data[index].x*100.0f);
+		pos_data[index] = static_cast<uint8_t>(frame->data[index].y*100.0f);
+		pos_data[index] = static_cast<uint8_t>(frame->data[index].z*100.0f);
+		col_data[index] = static_cast<uint8_t>(frame->data[index].r);
+		col_data[index] = static_cast<uint8_t>(frame->data[index].g);
+		col_data[index] = static_cast<uint8_t>(frame->data[index].b);
 	}
 
 	FUpdateTextureRegion2D region(0, 0, 0, 0, 1024, 1024);

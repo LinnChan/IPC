@@ -103,7 +103,7 @@ ipc::ESensorResult ipc::CKinect::Close()
 
 ipc::ESensorResult ipc::CKinect::GetPointCloudData(FPointCloud_Raw** ppData)
 {
-	if (m_IsOpen)
+	if (!m_IsOpen)
 		return ESensorResult::FAIL;
 
 	IDepthFrame* pDepthFrame = nullptr;

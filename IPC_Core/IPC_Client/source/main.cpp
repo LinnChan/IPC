@@ -5,7 +5,7 @@
 int main()
 {
 	ipc::CKinect sensor;
-	ipc::CIpcClient client(&sensor, "127.0.0.1", 16384, 100);
+	ipc::CIpcClient client(&sensor, "127.0.0.1", 19385, 10);
 
 	client.Run();
 
